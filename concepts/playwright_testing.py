@@ -1,9 +1,17 @@
 import json
 from playwright.sync_api import sync_playwright
+import html2text
 
 def extract_message(truth_info):
-    return truth_info["content"]
+    data = []
+    for truth in truth_info:
+        if truth["content"] != "<p></p>":
+            data.append(truth["content"])
+    return data
 
+def converter(text):
+    h = html2text.HTML2Text()
+    return h.handle(text)
 
 def tester():
     with sync_playwright() as p:
@@ -14,10 +22,8 @@ def tester():
         def processor(res):
             if "statuses" in res.url and res.status==200:
                 try:
-                    data = res.json()
-                    open("data.txt", "w").write(json.dumps(data, indent=4))
-                    for truth in data:
-                        print(extract_message(truth))
+                    for message in extract_message(res.json()):
+                        print(converter(message))
                 except Exception as e:
                     print(e)
 
@@ -27,3 +33,6 @@ def tester():
         chrome.close()
 
 tester()
+
+
+#since data is coming as html maybe it is worthwhile to create a website for it but not right now
