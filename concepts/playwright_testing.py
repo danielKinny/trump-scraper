@@ -1,6 +1,10 @@
 import json
 from playwright.sync_api import sync_playwright
 
+def extract_message(truth_info):
+    return truth_info["content"]
+
+
 def tester():
     with sync_playwright() as p:
         chrome = p.chromium.launch(headless=False)
@@ -9,12 +13,11 @@ def tester():
 
         def processor(res):
             if "statuses" in res.url and res.status==200:
-                print("found api endpoint")
-
                 try:
                     data = res.json()
                     open("data.txt", "w").write(json.dumps(data, indent=4))
-                    print(json.dumps(data, indent=4))
+                    for truth in data:
+                        print(extract_message(truth))
                 except Exception as e:
                     print(e)
 
