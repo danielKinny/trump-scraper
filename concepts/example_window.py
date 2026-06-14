@@ -26,4 +26,6 @@ button_frame.pack(pady=15)
 ttk.Button(button_frame, text="GOT IT!", command=popup.destroy).pack(side=LEFT, padx=5)
 popup.protocol("WM_DELETE_WINDOW", root.destroy)
 
+root.bell()
+
 root.mainloop()
