@@ -3,11 +3,12 @@ from playwright.sync_api import sync_playwright
 import html2text
 
 def extract_message(truth_info):
-    data = []
+    data,id = [],[]
     for truth in truth_info:
-        if truth["content"] != "<p></p>":
+        if truth["content"] != "<p></p>" and "iran" in truth["content"].lower():
             data.append(truth["content"])
-    return data
+            id.append(truth["id"])
+    return data,id
 
 def converter(text):
     h = html2text.HTML2Text()
@@ -22,10 +23,17 @@ def tester():
         def processor(res):
             if "statuses" in res.url and res.status==200:
                 try:
-                    for message in extract_message(res.json()):
+                    data, id = extract_message(res.json())
+                    for message in data:
                         print(converter(message))
+                    
+                    with open("concepts\\latest.txt", "a") as f:
+                        for i in id:
+                            f.write(i + "\n")
+                        
                 except Exception as e:
                     print(e)
+                
 
         page.on("response", processor)
         page.goto("https://truthsocial.com/@realDonaldTrump")
